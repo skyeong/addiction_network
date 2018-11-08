@@ -5,7 +5,7 @@ warning('off','all');
 % Directory containing Face data
 %--------------------------------------------------------------------------
 proj_path = '/Users/skyeong/data/IGD';
-fn_xls    = fullfile(proj_path,'Demographic','subjlist_sample_n10.xlsx');
+fn_xls    = fullfile(proj_path,'Demographic','subjlist_igd.xlsx');
 T = readtable(fn_xls);
 Group = T.Group;
 subjlist = T.subjname;
