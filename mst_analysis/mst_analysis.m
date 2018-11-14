@@ -42,7 +42,7 @@ for c=1:nsubj
     output = [output; mst];
 end
 
-writetable(output,'~/Desktop/a.csv');
+writetable(output,'~/Desktop/mst.csv');
 
 
 %--------------------------------------------------------------------------
@@ -65,10 +65,15 @@ for i=1:length(vars)
     pvals=[];
     for j=1:nrois
         [p,tabs,stat] = anova1(dat(:,j),Group,'off');
+        if p<0.005
+            fprintf('%s-%03d, p=%.4f,**\n',vars{i},j,p);
+        elseif p<0.05
+            fprintf('%s-%03d, p=%.4f,*\n',vars{i},j,p);
+        end
         pvals=[pvals; p];
     end
     [a,b,c,adj_p]=fdr_bh(pvals);
-    if adj_p<0.05
+    if pvals<0.05
         fprintf('%s-%03d, p=%.4f\n',vars{i},j,adj_p);
     end
     fprintf('\n')
