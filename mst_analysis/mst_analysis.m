@@ -1,5 +1,5 @@
 warning('off','all');
-
+addpath('/Users/skyeong/projects/addiction_network/fdr_bh');
 
 
 % Directory containing Face data
@@ -16,7 +16,7 @@ nsubj = length(subjlist);
 % Atlas Name
 %--------------------------------------------------------------------------
 atlasName = 'AAL'; nrois=90;
-% atlasName = 'shen_268'; nrois=268;
+% atlasName = 'HarvardOxford'; nrois=112;
 
 fn_atlas = fullfile(proj_path,'Atlas',[atlasName '.nii']);
 vo_atlas = spm_vol(fn_atlas);
@@ -43,3 +43,34 @@ for c=1:nsubj
 end
 
 writetable(output,'~/Desktop/a.csv');
+
+
+%--------------------------------------------------------------------------
+% Group Statistics (Global property)
+%--------------------------------------------------------------------------
+vars={'D','kappa','Th','Lf','st'};
+for i=1:length(vars)
+    dat = output.(vars{i});
+    [p,tabs,stat] = anova1(dat,Group,'off');
+    fprintf('%s, p=%.4f\n',vars{i},p);
+end
+
+
+%--------------------------------------------------------------------------
+% Group Statistics (Nodal property)
+%--------------------------------------------------------------------------
+vars={'dc','bc'};
+for i=1:length(vars)
+    dat = output.(vars{i});
+    pvals=[];
+    for j=1:nrois
+        [p,tabs,stat] = anova1(dat(:,j),Group,'off');
+        pvals=[pvals; p];
+    end
+    [a,b,c,adj_p]=fdr_bh(pvals);
+    if adj_p<0.05
+        fprintf('%s-%03d, p=%.4f\n',vars{i},j,adj_p);
+    end
+    fprintf('\n')
+end
+
