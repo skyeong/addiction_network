@@ -72,10 +72,46 @@ for i=1:length(vars)
         end
         pvals=[pvals; p];
     end
-    [a,b,c,adj_p]=fdr_bh(pvals);
-    if pvals<0.05
-        fprintf('%s-%03d, p=%.4f\n',vars{i},j,adj_p);
-    end
-    fprintf('\n')
+%     [a,b,c,adj_p]=fdr_bh(pvals);
+%     if pvals<0.05
+%         fprintf('%s-%03d, p=%.4f\n',vars{i},j,adj_p);
+%     end
+%     fprintf('\n')
 end
+
+
+
+
+%--------------------------------------------------------------------------
+% Permutation Testing (Nodal property)
+%--------------------------------------------------------------------------
+nperm=5000;
+vars={'dc','bc'};
+for i=1:length(vars)
+    dat = output.(vars{i});
+    fvals=zeros(nperm,nrois);
+    for j=1:nperm
+        idx = randperm(nsubj);
+        for k=1:nrois
+            [p,tabs,stat] = anova1(dat(:,k),Group(idx),'off');
+            fvals(j,k)=tabs{2,5};
+        end
+    end
+    
+    for k=1:nrois
+        [p,tabs,stat] = anova1(dat(:,k),Group,'off');
+        f=tabs{2,5};
+        alpha = sum(fvals(:,k)>f)/nperm;
+        if alpha<0.005
+            fprintf('%s-%03d, p=%.4f,**\n',vars{i},k,alpha);
+        elseif alpha<0.05
+            fprintf('%s-%03d, p=%.4f,*\n',vars{i},k,alpha);
+        end
+    end
+    fprintf('\n');
+end
+
+
+
+
 
