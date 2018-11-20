@@ -1,4 +1,5 @@
 warning('off','all');
+addpath(genpath('/Users/skyeong/matlabscripts/toolbox/controllability'));
 addpath('/Users/skyeong/projects/addiction_network/fdr_bh');
 
 
@@ -31,30 +32,35 @@ for c=1:nsubj
     load(fn);
     
     % Get network backbone
-    R = (R+R')/2;
-    corrD = graph(1-R);
+    corrD = graph(1-R,'upper');
     subG  = minspantree(corrD);
     subG.Edges.Weight = 1-subG.Edges.Weight;
     mst = compute_mst_measures(subG);
     
+    % Controllability
+    A = full(subG.adjacency); N = length(A);
+    [Nd, dn, Nconfig] = ExactControllability(A,'plotting',0);
+    
     mst.subjname = {subjname};
     mst.Group = Group(c);
+    mst.Nd = Nd;
+%     mst.dn = dn(:)';
     output = [output; mst];
 end
-
 writetable(output,'~/Desktop/mst.csv');
 
 
 %--------------------------------------------------------------------------
 % Group Statistics (Global property)
 %--------------------------------------------------------------------------
-vars={'D','kappa','Th','Lf','st'};
+vars={'D','kappa','Th','Lf','st','Nd'};
 for i=1:length(vars)
     dat = output.(vars{i});
     [p,tabs,stat] = anova1(dat,Group,'off');
     fprintf('%s, p=%.4f\n',vars{i},p);
 end
 
+return
 
 %--------------------------------------------------------------------------
 % Group Statistics (Nodal property)
@@ -72,11 +78,11 @@ for i=1:length(vars)
         end
         pvals=[pvals; p];
     end
-%     [a,b,c,adj_p]=fdr_bh(pvals);
-%     if pvals<0.05
-%         fprintf('%s-%03d, p=%.4f\n',vars{i},j,adj_p);
-%     end
-%     fprintf('\n')
+    %     [a,b,c,adj_p]=fdr_bh(pvals);
+    %     if pvals<0.05
+    %         fprintf('%s-%03d, p=%.4f\n',vars{i},j,adj_p);
+    %     end
+    %     fprintf('\n')
 end
 
 
@@ -110,8 +116,5 @@ for i=1:length(vars)
     end
     fprintf('\n');
 end
-
-
-
 
 
