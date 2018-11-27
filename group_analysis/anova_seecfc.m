@@ -1,6 +1,6 @@
 warning('off','all');
 
-seedname='HO_vStr_R';
+seedname='NAccR_3mm';
 
 %--------------------------------------------------------------------------
 % Directory containing preprocessed IGD dataset
@@ -21,7 +21,7 @@ fmri0 = cell(0);  cnt0=1;
 fmri1 = cell(0);  cnt1=1;
 fmri2 = cell(0);  cnt2=1;
 
-fmri_dir=fullfile(proj_path,'Results','staticFC_zmaps',seedname,'rest1');
+fmri_dir=fullfile(proj_path,'Results','staticFC_zmaps',seedname,'rest_24HM');
 for c=1:nsubj
     subjname = subjlist{c};
     switch Group(c)
